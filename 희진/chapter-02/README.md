@@ -4,10 +4,74 @@
 
 #### 이름을 잘 짓는 규칙은 다음과 같다.
 
-
 1. 의도를 분명히 밝혀라
 
+```java
+int d; // 경과 시간(단위 : 날짜)
+```
+
+```java
+int elapsedtimeinDays;
+int daysSinceCreation;
+int daysSinceModification;
+int fileAgeInDays;
+```
+
+위 변수의 이름 d는 아무 의미도 드러나지 않는다. <br>
+그러나 아래 변수는 측정하려는 값과 단위를 표현하고자 하는 의도가 드러나있다.
+
+어느 변수가 더 코드 이해와 변경이 쉬울까?
+
+```java
+public List<int []> getThem() {
+  List<int []> list1 = new ArrayList<int []>();
+
+  for (int[] x : theList)
+    if (x[0] == 4)
+      list1.add(x);
+  return list1;
+}
+```
+
+1. theList에 무엇이 들었는가?
+2. theList에서 0번째 값이 어째서 중요한가?
+3. 값 4는 무슨 의미인가?
+4. 함수가 반환하는 리스트 list1을 어떻게 사용하는가?
+
+#### 위 코드 샘플엔 이와 같은 정보가 드러나지 않는다.
+
+```java
+public List<Cell> getFlaggedCells() {
+  List<Cell> flaggedCells = new ArrayList<Cell>();
+  for (Cell cell : gameBoard)
+    if (cell.isFlaaged())
+      flaggedCells.add(cell);
+  return flaggedCells;
+}
+```
+
+#### 코드의 단순성은 변하지 않았지만 코드는 더욱 명확해졌다.
+
+- 변수나 함수, 클래스 이름은 다음과 같은 굵직한 질문에 모두 답해야 한다.
+
+1. 변수(혹은 함수나 클래스)의 존재 이유는?
+2. 수행 기능은?
+3. 사용 방법은?
+
+따로 주석이 필요하다면 의도를 분명히 드러내지 못했다는 말이다.
+
+<br>
 2. 그릇된 정보를 피하라
+<br>
+그릇된 단서는 코드 의미를 흐린다.
+
+```java
+  int a = l;
+  if ( O == l)
+  a = Ol;
+  else
+  l = 01;
+```
 
 3. 의미 있게 구분하라
 
