@@ -182,38 +182,292 @@ return buildList(text.substring(match.end()));
 
 대다수 주석은 허술한 코드를 지탱하거나, 엉성한 코드를 변명하거나, 미숙한 결정을 합리화하는 등 프로그래머가 주절거리는 독백에서 크게 벗어나지 못한다.
 
-**_주절거리는 주석_**
+### **_주절거리는 주석_**
 
-**_같은 이야기를 중복하는 주석_**
+주석을 달기로 결정했다면 충분한 시간을 들여 최고의 주석을 달도록 노력해야 한다.
 
-**_오해할 여지가 있는 주석_**
+```java
+public void loadProperties() {
+    try {
+    	String propertiesPath = propertiesLocation + "/" + PROPERTIES_FILE;
+    	FileInputStream propertiesStream = new FileInputStream(propertiesPath);
+    	loadedProperties.load(propertiesStream);
+    } catch (IOException e) {
+    	// 속성 파일이 없다면 기본값을 모두 메모리로 읽어 들였다는 의미다.
+    }
+}
+```
 
-**_의무적으로 다는 주석_**
+위 catch 블록에 있는 주석은 다른 사람들에게 의미가 전해지지 않는다. <br>
+주석을 제대로 달았다면 상당히 유용했을 코드이지만, 그냥 주절거려 놓았기에 판독이 불가능하다.
 
-**_이력을 기록하는 주석_**
+**이해가 안 되어 다른 모듈까지 뒤져야 하는 주석은 독자와 제대로 소통하지 못하는 주석이다.**
 
-**_있으나 마나 한 주석_**
+### **_같은 이야기를 중복하는 주석_**
 
-**_무서운 잡음_**
+```java
+// this.closed가 true일 때 반환되는 유틸리티 메서드다.
+// 타임아웃에 도달하면 예외를 던진다.
+public synchronized void waitForClose(final long timeoutMillis) throws Exception {
+    if (!closed) {
+        wait(timeoutMillis);
+        if (!closed) {
+            throw new Exception("MockResponseSender could not be closed");
+        }
+    }
+}
+```
 
-**_함수나 변수로 표현할 수 있다면 주석을 달지 마라_**
+위 예시는 헤더에 달린 주석이 같은 코드 내용을 그대로 중복한다. <br>
+코드 자체가 이미 명확하게 설명하고 있는 내용을 **주석으로 반복해서 설명하는 것은 코드의 가독성을 오히려 해칠 수 있다.**
 
-**_위치를 표시하는 주석_**
+### **_오해할 여지가 있는 주석_**
 
-**_닫는 괄호에 다는 주석_**
+```java
+// 이메일 형식을 검증합니다.
+public boolean validateEmail(String email) {
+    return email.contains("@");
+}
+```
 
-**_공로를 돌리거나 저자를 표시하는 주석_**
+해당 코드에는 이메일 형식을 검증한다고 설명하지만, 실제로는 `@` 문자가 포함되어 있는지만 확인한다. <br>
+만약 해당 파라미터로 넘어온 값이 test@email 이라면? <br>
+유효성 검증을 통과할 것이고 더 큰 참사를 불러 일으킬 수 있을 것이다.
 
-**_주석으로 처리한 코드_**
+### **_의무적으로 다는 주석_**
 
-**_HTML 주석_**
+```java
+/**
+ * 이 클래스는 간단한 계산기입니다.
+ * 더하기와 빼기 기능을 제공합니다.
+ */
+public class Calculator {
 
-**_전역 정보_**
+    /**
+     * 두 수를 더합니다.
+     *
+     * @param a 첫 번째 숫자
+     * @param b 두 번째 숫자
+     * @return 두 숫자의 합
+     */
+    public int add(int a, int b) {
+        return a + b;
+    }
 
-**_너무 많은 정보_**
+    /**
+     * 두 수를 뺍니다.
+     *
+     * @param a 첫 번째 숫자
+     * @param b 두 번째 숫자
+     * @return 두 숫자의 차이
+     */
+    public int subtract(int a, int b) {
+        return a - b;
+    }
+}
+```
 
-**_모호한 관계_**
+모든 함수에 Javadocs를 달거나 모든 변수에 주석을 달아야 한다는 규칙은 어리석기 그지없다. <br>
+이런 주석은 코드를 복잡하게 만들며, 거짓말을 퍼뜨리고, 혼동과 무질서를 초래한다.
 
-**_함수 헤더_**
+### **_이력을 기록하는 주석_**
 
-**_비공개 코드에서 Javadocs_**
+예전에는 **소스 코드 관리 시스템이 없었기 때문에** 모든 모듈 첫머리에 변경 이력을 기록하고 관리하는 관례가 바람직했다. <br>
+하지만 이제는 혼란만 가중할 뿐이다. 완전히 제거하는 편이 좋다. <br>
+
+```java
+/**
+ * 변경 이력 (11-Oct-2001부터)
+ * --------------------------------
+ * 11-Oct-2001 : 클래스를 다시 정리하고 새로운 패키지인 com.jrefinery.date로 옮겼다 (DG);
+ * 05-Nov-2001 : getDescription() 메서드를 추가했으며 NotableDate class를 제거했다 (DG);
+ * 12-Nov-2001 : IBD가 setDescription() 메서드를 요구한다 NotableDate 클래스를 없앴다 (DG);
+ *               getFollowingDayOfWeek(), getNearestDayOfWeek()를 변경해 버그를 수정했다 (DG);
+ * 05-Dec-2001 : SpreadsheetDate 클래스에 존재하는 버그를 수정했다 (DG);
+ * 29-May-2002 : month 상수를 독자적인 인터페이스로 옮겼다 (MonthConstants) (DG);
+ */
+```
+
+### **_있으나 마나 한 주석_**
+
+```java
+int count = 10; // count를 10으로 설정
+```
+
+```java
+// 두 수를 더한다
+int sum = a + b;
+```
+
+위 코드는 너무 당연한 사실을 언급하며 새로운 정보를 제공하지 못하고 있다. <br>
+위와 같은 주석은 개발자가 주석을 무시하는 습관에 빠질 수 있다. <br>
+있으나 마나 한 주석을 달려는 유혹에서 벗어나 코드를 정리하자.
+
+### **_무서운 잡음_**
+
+때로는 Javadocs도 잡음이다.
+
+```java
+/** The name. */
+private String name;
+
+/** The version. */
+private String version;
+
+/** The licenceName. */
+private String licenceName;
+
+/** The version. */
+private String info;
+```
+
+위 주석의 잘라서 붙여넣기 오류가 보이는가? <br>
+단지 문서를 제공해야 한다는 잘못된 욕심으로 잡음이 탄생했으며, 독자는 여기서 이익을 얻을 수 없다.
+
+### **_함수나 변수로 표현할 수 있다면 주석을 달지 마라_**
+
+```java
+// 잔액 목록 <smodule>에 속하는 모듈이 우리가 속한 하위 시스템에 의존하는가?
+if (smodule.getDependSubSystems().contains(subSysMod.getSubSystem()))
+```
+
+위 코드에서 주석을 없애고 다시 표현하면 다음과 같다.
+
+```java
+ArrayList moduleDependees = smodule.getDependSubsystems();
+String ourSubSystem = subSysMod.getSubSystem();
+if (moduleDependees.contains(ourSubSystem))
+```
+
+위와 같이 주석이 필요하지 않도록 코드를 개션하는 것이 더 좋다.
+
+### **_위치를 표시하는 주석_**
+
+```java
+// Actions //////////////////////////
+```
+
+프로그래머는 때때로 코드의 특정 부분을 찾기 쉽게 하기위해 위치를 표시하는 주석을 사용한다. <br>
+하지만 일반적으로 위와 같은 주석은 가독성만 낮추므로 제거해야 한다. <br>
+**특히 뒷부분에 슬래시(/)로 이어지는 잡음은 제거하는 편이 좋다.**
+
+### **_닫는 괄호에 다는 주석_**
+
+```java
+try {
+	while ((line = in.readLine()) != null) {
+    	...
+    } // while
+} // try
+catch (IOException e) {
+	...
+} // catch
+```
+
+위처럼 때로는 프로그래머들이 닫는 괄호에 특수한 주석을 달아놓는 경우가 있다. <br>
+중첩이 심하고 장황한 함수라면 의미가 있을지 모르지만, 작고 캡슐화된 함수에는 잡음일 뿐이다. <br>
+
+**닫는 괄호에 주석을 다는 것 대신 함수를 줄이려 시도하자.**
+
+### **_공로를 돌리거나 저자를 표시하는 주석_**
+
+```java
+/* 릭이 추가함 */
+```
+
+다른 사람들이 코드에 관해 누구한테 물어볼지 아니까 위와 같은 주석이 유용하다 여길 수도 있지만, <br>
+현실적으로 이런 주석은 **오랫동안 코드에 방치되어 점차 부정확하고 쓸모없는 정보**로 변하기 쉽다. <br>
+위와 같은 정보는 `소스 코드 관리 시스템`에 저장하는 것이 좋다.
+
+### **_주석으로 처리한 코드_**
+
+```java
+InputStreamResponse response = new InputStreamResponse();
+// InputSTream resultsTream = formatter.getResultStream();
+// StreamReader reader = new StreamReader(resultsStream);
+```
+
+주석으로 처리된 코드는 이유가 있어 남겨놓았으리라고, 중요하니까 지우면 안 된다고 생각해서 다른 사람들이 지우기를 주저한다. <br>
+우리는 오래전부터 우수한 소스 코드 관리 시스템을 사용해왔기 때문에 이제는 주석으로 처리할 필요가 없다. <br>
+
+그냥 코드를 삭제하라. 잃어버릴 염려는 없다.
+
+### **_HTML 주석_**
+
+```java
+/**
+ * 적합성 테스트를 수행하기 위한 과업
+ * 이 과업은 적합성 테스트를 수행해 결과를 출력한다.
+ * <p/>
+ * <pre>
+ * 용법:
+ * &lt;taskdef name=&quot;execute-fitnesse-tests&quot; classname=&quot;fitnesse.ant.ExecuteFitnesseTestsTask&quot; classpathref=&quot;classpath&quot; /&gt;
+ * 또는
+ * &lt;taskdef classpathref=&quot;classpath&quot; resource=&quot;tasks.properties&quot; /&gt
+ * </p>
+ * ...
+ */
+```
+
+HTML 주석은 주석을 읽기 쉬워야 하는 편집기/IDE에서조차 읽기가 어렵다. <br>
+Javadocs와 같은 도구로 주석을 뽑아 웹 페이지에 올리려고 했다면 **주석에 HTML 태그를 삽입해야 하는 책임은 프로그래머가 아닌 도구가 져야 한다.**
+
+### **_전역 정보_**
+
+```java
+/**
+* 적합성 테스트가 동작하는 포트: 기본값은 <b>8082</b>;
+*
+* @param fitnessePort
+*/
+public void setFitnessPort(int fitnessePort) {
+	this.fitnessePort = firnessePort;
+}
+```
+
+**주석을 달아야 한다면 근처에 있는 코드만 기술하라.** <br>
+위 코드는 포트 기본값을 전혀 통제하지 못한다. 즉 바로 **아래 함수가 아니라 시스템 어딘가에 있는 다른 함수를 설명**하고 있다는 것이다. <br>
+만약 포트 기본값을 설정하는 코드가 변경되어도 위 주석이 변경될 것이라는 보장은 전혀 없다.
+
+### **_너무 많은 정보_**
+
+주석에다 흥미로운 역사나 관련 없는 정보를 장황하게 늘어놓지 마라. <br>
+
+```java
+/*
+  RFC 2045.- Multipurpose Internet Mail Extensions (MIME)
+  1부: 인터넷 메시지 본체 형식
+  6.8절. Base64 내용 전송 인코딩
+  인코딩 과정은 입력 비트 중 24비트그룹을 인코딩된 4글자로 구성된
+  출력 문자열로 표현한다. 왼쪽에서 오른쪽으로 진행해가며, 3개를 묶어 8비트 입력
+  그룹을 형성한다. ..
+  ...
+*/
+```
+
+위 주석은 RFC 번호를 제외하면 독자에게 불필요하며 불가사의한 정보일 뿐이다.
+
+### **_모호한 관계_**
+
+주석과 주석이 설명하는 코드는 둘 사이 관계가 명백해야 한다.
+
+```java
+/*
+* 모든 픽셀을 담을 만큼 충분한 배열로 시작한다(여기에 필터 바이트를 더한다).
+* 그리고 헤더 정보를 위해 200바이트를 더한다.
+*/
+this.pngBytes = new byte[((this.width + 1) * this.height * 3) + 200];
+```
+
+다음 코드는 독자가 주석과 코드를 읽어봐도 코드가 무엇을 하는지, 각 요소가 어떻게 상호작용하는지 파악하기 어렵지 않은가? <br>
+주석 자체가 다시 설명을 요구하고 있다는 것은 명확하게 설명하지 못했음을 의미한다.
+
+### **_함수 헤더_**
+
+짦은 함수는 긴 설명이 필요 없다. <br> 짧고 한 가지만 수행하며 이름을 잘 붙인 함수가 주석으로 헤더를 추가한 함수보다 훨씬 좋다.
+
+### **_비공개 코드에서 Javadocs_**
+
+공개 API는 Javadocs가 유용하지만 **공개하지 않을 코드라면 Javadocs는 쓸모가 없다.** <br>
+시스템 내부에 속한 클래스와 함수에 Javadocs를 생성할 필요는 없다. <br>
+유용하지 않을 뿐만 아니라 Javadocs 주석이 요구하는 형식으로 인해 코드만 보기 싫고 산만해질 뿐이다.
